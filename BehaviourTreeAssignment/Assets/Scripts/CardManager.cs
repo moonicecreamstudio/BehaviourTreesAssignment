@@ -19,12 +19,15 @@ public class CardManager : MonoBehaviour
 
     public GameObject cardPrefab;
     public Transform playerHandArea;
+    public Transform ghostHandArea;
 
     public Blackboard monsterBlackboard;
 
-    public int maxHandSize;
+    public int maxPlayerHandSize;
+    public int maxGhostHandSize;
 
     [SerializeField] private int selectedCard;
+    [SerializeField] private int ghostSelectedCard;
 
     public bool playerTurn;
     public float playerTurnTimer;
@@ -42,6 +45,14 @@ public class CardManager : MonoBehaviour
         PlayerDrawCard();
         PlayerDrawCard();
         PlayerDrawCard();
+
+        InitializeGhostDrawPile();
+        ShuffleGhostDeck();
+        GhostDrawCard();
+        GhostDrawCard();
+        GhostDrawCard();
+        GhostDrawCard();
+        GhostDrawCard();
     }
 
     public void Update()
@@ -71,11 +82,99 @@ public class CardManager : MonoBehaviour
 
     // Turn Order
 
-    
+
 
     // Ghost
+    public void InitializeGhostDrawPile()
+    {
+        ghostDrawPile = new List<Cards>(listOfGhostCards);
+        ghostHandPile = new List<Cards>();
+    }
 
+    public void ShuffleGhostDeck()
+    {
+        for (int i = ghostDrawPile.Count - 1; i > 0; i--)
+        {
+            int randomIndex = Random.Range(0, i + 1);
+            Cards tempPile = ghostDrawPile[i];
+            ghostDrawPile[i] = ghostDrawPile[randomIndex];
+            ghostDrawPile[randomIndex] = tempPile;
+        }
+    }
 
+    public void GhostDrawCard()
+    {
+        if (ghostHandPile.Count >= maxGhostHandSize)
+        {
+            Debug.Log("Ghost hand is full");
+            return;
+        }
+
+        if (ghostDrawPile.Count == 0)
+        {
+            RefreshGhostDrawPile();
+        }
+
+        if (playerDrawPile.Count > 0)
+        {
+            Cards drawnCard = ghostDrawPile[0];
+            ghostDrawPile.RemoveAt(0);
+            ghostHandPile.Add(drawnCard);
+
+            Debug.Log("Ghost drew the card: " + drawnCard.title);
+
+            DisplayGhostCard(drawnCard);
+            //selectedCard = 0; // First drawn card is selectred
+        }
+    }
+
+    public void DisplayGhostCard(Cards card)
+    {
+        GameObject newCard = Instantiate(cardPrefab, ghostHandArea);
+        newCard.transform.SetParent(ghostHandArea, false);
+
+        CardDisplay cardDisplay = newCard.GetComponent<CardDisplay>();
+        if (cardDisplay != null)
+        {
+            cardDisplay.cardData = card;
+            cardDisplay.UpdateCardDisplay();
+        }
+    }
+
+    public void RefreshGhostDrawPile()
+    {
+        if (ghostDiscardPile.Count > 0)
+        {
+            ghostDrawPile.AddRange(ghostDiscardPile);
+            ghostDiscardPile.Clear();
+            ShuffleGhostDeck();
+            Debug.Log("Reshuffle for Ghost");
+        }
+    }
+
+    public void GhostSelectCard()
+    {
+        if (ghostHandPile.Count == 0) return;
+        ghostSelectedCard = 0;
+    }
+
+    public void GhostPlaySelectedCard()
+    {
+        if (ghostHandPile.Count == 0)
+        {
+            return;
+        }
+
+        Cards playedCard = ghostHandPile[ghostSelectedCard];
+        playerHandPile.RemoveAt(ghostSelectedCard);
+
+        Debug.Log("Ghost played the card: " + playedCard.title);
+        PlayedCard(playedCard.cardID);
+        ghostDiscardPile.Add(playedCard);
+
+        // Destroy the palyed card
+        Destroy(ghostHandArea.GetChild(ghostSelectedCard).gameObject);
+    }
 
     // Player
     public void InitializePlayerDrawPile()
@@ -97,7 +196,7 @@ public class CardManager : MonoBehaviour
 
     public void PlayerDrawCard()
     {
-        if (playerHandPile.Count >= maxHandSize)
+        if (playerHandPile.Count >= maxPlayerHandSize)
         {
             Debug.Log("Your hand is full");
             return;
@@ -271,6 +370,7 @@ public class CardManager : MonoBehaviour
         }
         if (cardID == 10)
         {
+            PlayerDrawCard();
             PlayerDrawCard();
         }
         if (cardID == 11)
