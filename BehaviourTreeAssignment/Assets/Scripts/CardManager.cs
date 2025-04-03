@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using NodeCanvas.Framework;
+using System.Collections;
 
 public class CardManager : MonoBehaviour
 {
@@ -10,6 +11,11 @@ public class CardManager : MonoBehaviour
     public List<Cards> playerDrawPile;
     public List<Cards> playerDiscardPile;
     public List<Cards> playerHandPile;
+
+    public List<Cards> listOfGhostCards;
+    public List<Cards> ghostDrawPile;
+    public List<Cards> ghostDiscardPile;
+    public List<Cards> ghostHandPile;
 
     public GameObject cardPrefab;
     public Transform playerHandArea;
@@ -28,32 +34,37 @@ public class CardManager : MonoBehaviour
 
     public void Start()
     {
-
-        InitializeDrawPile();
-        ShuffleDeck();
+        playerTurn = false;
+        InitializePlayerDrawPile();
+        ShufflePlayerDeck();
+        PlayerDrawCard();
+        PlayerDrawCard();
+        PlayerDrawCard();
+        PlayerDrawCard();
+        PlayerDrawCard();
     }
 
     public void Update()
     {
         if (Input.GetKeyDown(KeyCode.R))
         {
-            DrawCard();
+            PlayerDrawCard();
         }
 
         if (playerHandPile.Count > 0)
         {
-            if (Input.GetKeyDown(KeyCode.Q))
+            if (Input.GetAxis("Mouse ScrollWheel") < 0f)
             {
                 SelectPreviousCard();
             }
-            else if (Input.GetKeyDown(KeyCode.E))
+            else if (Input.GetAxis("Mouse ScrollWheel") > 0f)
             {
                 SelectNextCard();
             }
 
             if (Input.GetKeyDown(KeyCode.Space))
             {
-                PlaySelectedCard();
+                PlayerPlaySelectedCard();
             }
         }
     }
@@ -67,13 +78,13 @@ public class CardManager : MonoBehaviour
 
 
     // Player
-    public void InitializeDrawPile()
+    public void InitializePlayerDrawPile()
     {
         playerDrawPile = new List<Cards>(listOfPlayerCards);
         playerHandPile = new List<Cards>();
     }
 
-    public void ShuffleDeck()
+    public void ShufflePlayerDeck()
     {
         for (int i = playerDrawPile.Count - 1; i > 0; i--)
         {
@@ -84,7 +95,7 @@ public class CardManager : MonoBehaviour
         }
     }
 
-    public void DrawCard()
+    public void PlayerDrawCard()
     {
         if (playerHandPile.Count >= maxHandSize)
         {
@@ -94,7 +105,7 @@ public class CardManager : MonoBehaviour
 
         if (playerDrawPile.Count == 0)
         {
-            RefreshDrawPile();
+            RefreshPlayerDrawPile();
         }
 
         if (playerDrawPile.Count > 0)
@@ -105,13 +116,13 @@ public class CardManager : MonoBehaviour
 
             Debug.Log("Drew the card: " + drawnCard.title);
 
-            DisplayCard(drawnCard);
-            selectedCard = playerHandPile.Count - 1; // Last drawn card is selectred
-            UpdateCardSelection();
+            DisplayPlayerCard(drawnCard);
+            selectedCard = 0; // First drawn card is selectred
+            UpdatePlayerCardSelection();
         }
     }
 
-    public void DisplayCard(Cards card)
+    public void DisplayPlayerCard(Cards card)
     {
         GameObject newCard = Instantiate(cardPrefab, playerHandArea);
         newCard.transform.SetParent(playerHandArea, false);
@@ -123,24 +134,24 @@ public class CardManager : MonoBehaviour
             cardDisplay.UpdateCardDisplay();
         }
 
-        UpdateCardSelection();
+        UpdatePlayerCardSelection();
     }
 
     public void SelectPreviousCard()
     {
         if (playerHandPile.Count == 0) return;
         selectedCard = (selectedCard - 1 + playerHandPile.Count) % playerHandPile.Count;
-        UpdateCardSelection();
+        UpdatePlayerCardSelection();
     }
 
     public void SelectNextCard()
     {
         if (playerHandPile.Count == 0) return;
         selectedCard = (selectedCard + 1) % playerHandPile.Count;
-        UpdateCardSelection();
+        UpdatePlayerCardSelection();
     }
 
-    public void UpdateCardSelection()
+    public void UpdatePlayerCardSelection()
     {
         // Loop through all cards and update their selection state
         for (int i = 0; i < playerHandArea.childCount; i++)
@@ -164,9 +175,12 @@ public class CardManager : MonoBehaviour
         }
     }
 
-    public void PlaySelectedCard()
+    public void PlayerPlaySelectedCard()
     {
-        if (playerHandPile.Count == 0) return;
+        if (playerHandPile.Count == 0)
+        {
+            return;
+        }
 
         Cards playedCard = playerHandPile[selectedCard];
         playerHandPile.RemoveAt(selectedCard);
@@ -184,16 +198,22 @@ public class CardManager : MonoBehaviour
         }
 
         // Update highlighted card
-        UpdateCardSelection();
+        StartCoroutine(WaitAndUpdatePlayerSelection());
     }
 
-    public void RefreshDrawPile()
+    public IEnumerator WaitAndUpdatePlayerSelection()
+    {
+        yield return new WaitForSeconds(0.1f);
+        UpdatePlayerCardSelection();
+    }
+
+    public void RefreshPlayerDrawPile()
     {
         if (playerDiscardPile.Count > 0)
         {
             playerDrawPile.AddRange(playerDiscardPile);
             playerDiscardPile.Clear();
-            ShuffleDeck();
+            ShufflePlayerDeck();
             Debug.Log("Reshuffle time");
         }
     }
@@ -203,6 +223,7 @@ public class CardManager : MonoBehaviour
         // When time permits, using scriptable objects here would be better
         var isAwake = monsterBlackboard.GetVariable<bool>("isAwake");
         var canSeePlayer = monsterBlackboard.GetVariable<bool>("canSeePlayer");
+        var debuffSlow = monsterBlackboard.GetVariable<bool>("debuffSlow");
 
         if (cardID == 1)
         {
@@ -237,9 +258,30 @@ public class CardManager : MonoBehaviour
         if (cardID == 7)
         {
             isAwake.value = false;
+
         }
 
         if (cardID == 8)
+        {
+            canSeePlayer.value = false;
+        }
+        if (cardID == 9)
+        {
+            // player speed
+        }
+        if (cardID == 10)
+        {
+            PlayerDrawCard();
+        }
+        if (cardID == 11)
+        {
+            //unlock
+        }
+        if (cardID == 12)
+        {
+            debuffSlow.value = true;
+        }
+        if (cardID == 13)
         {
             canSeePlayer.value = false;
         }
