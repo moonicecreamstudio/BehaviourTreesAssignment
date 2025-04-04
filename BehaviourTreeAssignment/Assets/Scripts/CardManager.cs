@@ -22,6 +22,7 @@ public class CardManager : MonoBehaviour
     public Transform ghostHandArea;
 
     public Blackboard monsterBlackboard;
+    public Blackboard ghostBlackboard;
 
     public int maxPlayerHandSize;
     public int maxGhostHandSize;
@@ -74,9 +75,12 @@ public class CardManager : MonoBehaviour
                 SelectNextCard();
             }
 
-            if (Input.GetKeyDown(KeyCode.Space))
+            if (Input.GetKeyDown(KeyCode.Space) && playerTurn == true)
             {
                 PlayerPlaySelectedCard();
+                var isPlayerTurn = ghostBlackboard.GetVariable<bool>("isPlayerTurn");
+                isPlayerTurn.value = false;
+                playerTurn = false;
             }
         }
     }
@@ -153,10 +157,10 @@ public class CardManager : MonoBehaviour
         }
     }
 
-    public void GhostSelectCard()
+    public void GhostSelectCard(int selectedCard)
     {
         if (ghostHandPile.Count == 0) return;
-        ghostSelectedCard = 0;
+        ghostSelectedCard = selectedCard;
     }
 
     public void GhostPlaySelectedCard()
@@ -165,6 +169,8 @@ public class CardManager : MonoBehaviour
         {
             return;
         }
+
+        GhostDrawCard(); // Temp
 
         Cards playedCard = ghostHandPile[ghostSelectedCard];
         ghostHandPile.RemoveAt(ghostSelectedCard);
@@ -175,6 +181,10 @@ public class CardManager : MonoBehaviour
 
         // Destroy the palyed card
         Destroy(ghostHandArea.GetChild(ghostSelectedCard).gameObject);
+
+        playerTurn = true;
+        var isPlayerTurn = ghostBlackboard.GetVariable<bool>("isPlayerTurn");
+        isPlayerTurn.value = true;
     }
 
     // Player
