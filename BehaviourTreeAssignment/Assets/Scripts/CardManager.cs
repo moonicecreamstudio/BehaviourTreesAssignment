@@ -34,7 +34,14 @@ public class CardManager : MonoBehaviour
     public float playerTurnTimer;
     public float playerMaxTurnTimer;
 
+    // Keely suggests using this
+    // See Week 12 Slides
+    public enum GameState
+    {
+        player_turn, ghost_turn, ghost_deciding
+    }
 
+    public GameState gameState;
 
     public void Start()
     {
