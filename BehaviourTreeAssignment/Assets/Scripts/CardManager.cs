@@ -37,6 +37,7 @@ public class CardManager : MonoBehaviour
 
     public void Start()
     {
+
         playerTurn = false;
         InitializePlayerDrawPile();
         ShufflePlayerDeck();
@@ -166,7 +167,7 @@ public class CardManager : MonoBehaviour
         }
 
         Cards playedCard = ghostHandPile[ghostSelectedCard];
-        playerHandPile.RemoveAt(ghostSelectedCard);
+        ghostHandPile.RemoveAt(ghostSelectedCard);
 
         Debug.Log("Ghost played the card: " + playedCard.title);
         PlayedCard(playedCard.cardID);
@@ -370,8 +371,7 @@ public class CardManager : MonoBehaviour
         }
         if (cardID == 10)
         {
-            PlayerDrawCard();
-            PlayerDrawCard();
+            PlayerDrawCard(); // Something about this here breaks how cards will be played
         }
         if (cardID == 11)
         {

@@ -10764,7 +10764,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f9f894dbd975d794c95ac95b19978db9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 5
+  moveSpeed: 2
+  moveSpeedRun: 5
+  moveSpeedDefault: 2
   groundDrag: 5
   playerHeight: 2
   whatIsGround:

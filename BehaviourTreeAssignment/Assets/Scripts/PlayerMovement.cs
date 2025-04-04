@@ -6,6 +6,8 @@ public class PlayerMovement : MonoBehaviour
 {
     [Header("Movement")]
     public float moveSpeed;
+    public float moveSpeedRun;
+    public float moveSpeedDefault;
 
     public float groundDrag;
 
@@ -35,6 +37,15 @@ public class PlayerMovement : MonoBehaviour
 
         MyInput();
         SpeedControl();
+
+        if (Input.GetKey(KeyCode.LeftShift))
+        {
+            moveSpeed = moveSpeedRun;
+        }
+        else
+        {
+            moveSpeed = moveSpeedDefault;
+        }
 
         // Handle Drag
         if (grounded)
