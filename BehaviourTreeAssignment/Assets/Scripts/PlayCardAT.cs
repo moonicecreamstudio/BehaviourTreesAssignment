@@ -36,8 +36,9 @@ namespace NodeCanvas.Tasks.Actions {
             {
                 if (cardManager.ghostHandPile[i].priorityType == priorityNumber)
                 {
-                    //Cards tempPile = cardManager.ghostHandPile[i];
-                    //int chosenCard = Random.Range(0, i + 1);
+					//Cards tempPile = cardManager.ghostHandPile[i];
+					//int chosenCard = Random.Range(0, i + 1);
+					//cardManager.UpdateGhostCardSelection(i);
                     cardManager.GhostSelectCard(i);
                     cardManager.GhostPlaySelectedCard();
                 }

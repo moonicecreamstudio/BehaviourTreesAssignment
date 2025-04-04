@@ -187,6 +187,38 @@ public class CardManager : MonoBehaviour
         isPlayerTurn.value = true;
     }
 
+    public void UpdateGhostCardSelection(int selectedCard)
+    {
+        // Loop through all cards and update their selection state
+        for (int i = 0; i < ghostHandArea.childCount; i++)
+        {
+            GameObject cardObj = ghostHandArea.GetChild(i).gameObject;
+            Image cardImage = cardObj.GetComponentInChildren<Image>();
+            
+
+            // Highlight the selected card
+            // Not sure why highlighted card breaks when a card is played
+            if (cardImage != null)
+            {
+                if (i == selectedCard)
+                {
+                    cardImage.color = Color.yellow; // Highlight selected card
+                }
+                else
+                {
+                    cardImage.color = Color.white; // Reset color for unselected cards
+                }
+            }
+        }
+        StartCoroutine(Wait(1f));
+    }
+
+    public IEnumerator Wait(float seconds)
+    {
+        Debug.Log("Waiting");
+        yield return new WaitForSeconds(seconds);
+    }
+
     // Player
     public void InitializePlayerDrawPile()
     {
