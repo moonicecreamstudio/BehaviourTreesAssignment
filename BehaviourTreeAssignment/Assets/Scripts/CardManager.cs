@@ -346,6 +346,8 @@ public class CardManager : MonoBehaviour
             selectedCard = 0; // Select the first card
         }
 
+        PlayerDrawCard();
+
         // Update highlighted card
         StartCoroutine(WaitAndUpdatePlayerSelection());
     }
